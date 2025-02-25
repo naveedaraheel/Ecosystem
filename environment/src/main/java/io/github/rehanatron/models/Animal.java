@@ -9,9 +9,9 @@ public abstract class Animal extends Organism {
     }
 
     public void move() {
-        this.x += (Math.random() * 10) - 5;
-        this.y += (Math.random() * 10) - 5;
-        this.z += (Math.random() * 10) - 5;
+        this.x += (Math.random() * 10);
+        this.y += (Math.random() * 10);
+        this.z += (Math.random() * 10);
         this.energy -= 5;
     }
 
