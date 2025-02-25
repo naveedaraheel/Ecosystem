@@ -9,13 +9,8 @@ public abstract class Animal extends Organism {
     }
 
     public void move() {
-        this.x += (Math.random() * 10) - 5;
-        this.y += (Math.random() * 10) - 5;
-        this.z += (Math.random() * 10) - 5;
-        this.energy -= 5;
-    }
-
-    public boolean isAlive() {
-        return this.energy > 0;
+        this.x += (Math.random() * speed) - speed / 2;
+        this.y += (Math.random() * speed) - speed / 2;
+        this.z += Math.random() * 2;
     }
 }
