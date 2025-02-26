@@ -1,5 +1,7 @@
 package io.github.rehanatron.models;
 
+import java.util.List;
+
 public abstract class Animal extends Organism {
     protected int speed;
 
@@ -13,4 +15,6 @@ public abstract class Animal extends Organism {
         this.y += (Math.random() * speed) - speed / 2;
         this.z += Math.random() * 2;
     }
+
+    public abstract void eat(List<? extends Organism> organisms);
 }
