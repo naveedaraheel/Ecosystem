@@ -24,8 +24,8 @@ public class Main extends Application {
         animalShapes = new HashMap<>();
 
         // Sample animals
-        Carnivore carnivore = new Carnivore(50, 50, 0, 100, 5);
-        Herbivore herbivore = new Herbivore(100, 100, 0, 100, 2);
+        Carnivore carnivore = new Carnivore(400, 400, 0, 100, 5);
+        Herbivore herbivore = new Herbivore(400, 400, 1, 100, 5);
         Plant plant = new Plant(100, 100, 0, 4);
 
         controller.addAnimal(carnivore);
@@ -33,7 +33,7 @@ public class Main extends Application {
         controller.addPlant(plant);
         // JavaFX Group for rendering
         Group root = new Group();
-        Scene scene = new Scene(root, 600, 400, true);
+        Scene scene = new Scene(root, 1280, 720, true);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Ecosystem Simulator");
 

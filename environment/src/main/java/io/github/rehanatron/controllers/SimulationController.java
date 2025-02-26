@@ -25,6 +25,9 @@ public class SimulationController {
         for (Animal animal : animals) {
             if (animal.isAlive()) {
                 animal.move();
+                animal.eat(animals);
+            } else {
+                animals.remove(animal);
             }
         }
         for (Plant plant : plants) {
@@ -36,5 +39,9 @@ public class SimulationController {
 
     public List<Animal> getAnimals() {
         return animals;
+    }
+
+    public List<Plant> getPlants() {
+        return plants;
     }
 }
