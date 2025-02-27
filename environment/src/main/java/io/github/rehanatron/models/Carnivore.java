@@ -12,9 +12,9 @@ public class Carnivore extends Animal {
             if (organism instanceof Herbivore) {
                 Herbivore herbivore = (Herbivore) organism;
 
-                if ((Math.abs(herbivore.x - this.x) < 2) && (Math.abs(herbivore.y - this.y) < 2)) {
+                if ((Math.abs(herbivore.x - this.x) < 10) && (Math.abs(herbivore.y - this.y) < 10)) {
                     this.addEnergy(10);
-                    herbivore.addEnergy(-herbivore.getEnergy()); // Reduce herbivore's energy to 0
+                    herbivore.addEnergy(-herbivore.getEnergy());
                 }
             }
         }

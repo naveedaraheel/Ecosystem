@@ -7,10 +7,12 @@ import java.util.List;
 public class SimulationController {
     private List<Animal> animals;
     private List<Plant> plants;
+    private Terrain terrain;
 
-    public SimulationController() {
+    public SimulationController(int terrainWidth, int terrainLength) {
         this.animals = new ArrayList<>();
         this.plants = new ArrayList<>();
+        this.terrain = new Terrain(terrainWidth, terrainLength);
     }
 
     public void addAnimal(Animal animal) {
@@ -25,16 +27,19 @@ public class SimulationController {
         for (Animal animal : animals) {
             if (animal.isAlive()) {
                 animal.move();
-                animal.eat(animals);
-            } else {
-                animals.remove(animal);
+
+                if (animal instanceof Herbivore) {
+                    ((Herbivore) animal).eat(plants);
+                } else {
+                    ((Carnivore) animal).eat(animals);
+                }
             }
         }
-        for (Plant plant : plants) {
-            if (plant.isAlive()) {
-                plant.addEnergy(10);
-            }
-        }
+        terrain.growPlants(plants);
+    }
+
+    public Terrain getTerrain() {
+        return terrain;
     }
 
     public List<Animal> getAnimals() {
