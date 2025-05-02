@@ -24,9 +24,13 @@ public class SimulationController {
     }
 
     public void updateSimulation() {
+        List<Organism> allOrganisms = new ArrayList<>();
+        allOrganisms.addAll(animals);
+        allOrganisms.addAll(plants);
+
         for (Animal animal : animals) {
             if (animal.isAlive()) {
-                animal.move();
+                animal.move(allOrganisms);
 
                 if (animal instanceof Herbivore) {
                     ((Herbivore) animal).eat(plants);

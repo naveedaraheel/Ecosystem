@@ -3,12 +3,14 @@ package io.github.rehanatron.models;
 public abstract class Organism {
     public int x, y, z;
     int energy;
+    protected String species;
 
-    public Organism(int x, int y, int z, int energy) {
+    public Organism(int x, int y, int z, int energy, String species) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.energy = energy;
+        this.species = species;
     }
 
     public boolean isAlive() {

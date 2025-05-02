@@ -10,7 +10,6 @@ import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -35,12 +34,16 @@ public class Main extends Application {
         terrainGroup = new Group();
 
         // Sample animals
-        Carnivore carnivore = new Carnivore(30, 30, 0, 100, 5);
-        Herbivore herbivore = new Herbivore(20, 20, 0, 100, 5);
-        Plant plant = new Plant(10, 10, 0, 100);
+        Carnivore lion1 = new Carnivore(125, 125, 0, 100, 2, "Lion");
+        Carnivore lion2 = new Carnivore(105, 105, 0, 100, 2, "Lion");
+        Herbivore zebra1 = new Herbivore(25, 25, 0, 100, 1, "Zebra");
+        Herbivore zebra2 = new Herbivore(35, 35, 0, 100, 1, "Zebra");
+        Plant plant = new Plant(10, 10, 0, 100, "Plant");
 
-        controller.addAnimal(carnivore);
-        controller.addAnimal(herbivore);
+        controller.addAnimal(lion1);
+        controller.addAnimal(lion2);
+        controller.addAnimal(zebra1);
+        controller.addAnimal(zebra2);
         controller.addPlant(plant);
 
         // JavaFX Group for rendering
@@ -69,16 +72,16 @@ public class Main extends Application {
     private void setupCamera(Scene scene) {
         camera = new PerspectiveCamera(true);
         camera.setTranslateZ(-800);
-        camera.setTranslateY(-200);
+        camera.setTranslateY(200);
         camera.setTranslateX(500);
         camera.setFarClip(5000); // Fix disappearing objects
 
         scene.setCamera(camera);
 
-        final double[] mousePosX = {0};
-        final double[] mousePosY = {0};
-        final double[] angleX = {0};
-        final double[] angleY = {0};
+        final double[] mousePosX = { 0 };
+        final double[] mousePosY = { 0 };
+        final double[] angleX = { 0 };
+        final double[] angleY = { 0 };
 
         scene.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
             mousePosX[0] = event.getSceneX();
@@ -152,11 +155,35 @@ public class Main extends Application {
     }
 
     private void updateView() {
+        // Update animal positions and colors
         for (Map.Entry<Animal, Sphere> entry : animalShapes.entrySet()) {
             Animal animal = entry.getKey();
             Sphere sphere = entry.getValue();
             sphere.setTranslateX(animal.x);
             sphere.setTranslateY(animal.y);
+            
+            // Update color based on life status
+            PhongMaterial material = (PhongMaterial) sphere.getMaterial();
+            if (!animal.isAlive()) {
+                material.setDiffuseColor(Color.GRAY);
+            } else {
+                material.setDiffuseColor(animal instanceof Carnivore ? Color.RED : Color.GREEN);
+            }
+        }
+
+        // Update plant colors
+        for (Map.Entry<Plant, Rectangle> entry : plantShapes.entrySet()) {
+            Plant plant = entry.getKey();
+            Rectangle rectangle = entry.getValue();
+            rectangle.setTranslateX(plant.x);
+            rectangle.setTranslateY(plant.y);
+            
+            // Update color based on life status
+            if (!plant.isAlive()) {
+                rectangle.setFill(Color.GRAY);
+            } else {
+                rectangle.setFill(Color.BLUE);
+            }
         }
     }
 
