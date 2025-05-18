@@ -18,7 +18,7 @@ public class Herbivore extends Animal {
             if (nearestCarnivore != null) {
                 moveAwayFrom(nearestCarnivore);
                 currentTarget = null; // Abandon current food target when fleeing
-            } else if (isCriticalEnergy()) {
+            } else if (isCriticalEnergy() || isLowEnergy()) {
                 // Second priority: Find food when critically low on energy
                 if (currentTarget != null && currentTarget.isAlive()) {
                     // Continue moving towards current target
@@ -30,25 +30,6 @@ public class Herbivore extends Animal {
                         moveTowards(currentTarget);
                     } else {
                         moveRandomly();
-                    }
-                }
-            } else if (isLowEnergy()) {
-                // Third priority: Look for food when low on energy
-                if (currentTarget != null && currentTarget.isAlive()) {
-                    moveTowards(currentTarget);
-                } else {
-                    // Find new plant target
-                    currentTarget = (Plant) findNearestOrganism(organisms, Plant.class);
-                    if (currentTarget != null) {
-                        moveTowards(currentTarget);
-                    } else {
-                        // Maintain herd spacing if no food is found
-                        Organism nearestHerdMember = findNearestHerdMember(organisms);
-                        if (nearestHerdMember != null) {
-                            maintainHerdDistance(nearestHerdMember);
-                        } else {
-                            moveRandomly();
-                        }
                     }
                 }
             } else {
@@ -70,7 +51,7 @@ public class Herbivore extends Animal {
                 Plant plant = (Plant) organism;
 
                 if ((Math.abs(plant.x - this.x) < 2) && (Math.abs(plant.y - this.y) < 2)) {
-                    this.addEnergy(5);
+                    this.addEnergy(1);
                     plant.addEnergy(-5);
                     if (plant == currentTarget && plant.getEnergy() <= 0) {
                         currentTarget = null; // Clear target after eating

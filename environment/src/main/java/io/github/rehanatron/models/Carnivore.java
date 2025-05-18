@@ -20,12 +20,13 @@ public class Carnivore extends Animal {
                 if (timeAtKillSite > 5) { // Stay for 5 moves
                     killSite = null;
                     timeAtKillSite = 0;
+                    this.addEnergy(100 - getEnergy());
                 }
                 return; // Don't move while eating
             }
             energy -= 1;
 
-            if (isCriticalEnergy()) {
+            if (isCriticalEnergy() || isLowEnergy()) {
                 // First priority: Find food when critically low on energy
                 if (currentTarget != null && currentTarget.isAlive()) {
                     moveTowards(currentTarget);
@@ -36,25 +37,6 @@ public class Carnivore extends Animal {
                         moveTowards(currentTarget);
                     } else {
                         moveRandomly();
-                    }
-                }
-            } else if (isLowEnergy()) {
-                // Second priority: Look for food when low on energy
-                if (currentTarget != null && currentTarget.isAlive()) {
-                    moveTowards(currentTarget);
-                } else {
-                    // Find new herbivore target with increased detection radius
-                    currentTarget = (Herbivore) findNearestOrganism(organisms, Herbivore.class);
-                    if (currentTarget != null) {
-                        moveTowards(currentTarget);
-                    } else {
-                        // Maintain pack spacing if no food is found
-                        Organism nearestPackMember = findNearestHerdMember(organisms);
-                        if (nearestPackMember != null) {
-                            maintainHerdDistance(nearestPackMember);
-                        } else {
-                            moveRandomly();
-                        }
                     }
                 }
             } else {
@@ -76,7 +58,6 @@ public class Carnivore extends Animal {
                 Herbivore herbivore = (Herbivore) organism;
 
                 if ((Math.abs(herbivore.x - this.x) < 10) && (Math.abs(herbivore.y - this.y) < 10)) {
-                    this.addEnergy(10);
                     herbivore.addEnergy(-herbivore.getEnergy());
                     if (herbivore == currentTarget) {
                         currentTarget = null;

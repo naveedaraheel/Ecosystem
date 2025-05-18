@@ -7,6 +7,7 @@
     <groupId>io.github.rehanatron</groupId>
     <artifactId>environment</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -30,6 +31,14 @@
         <artifactId>javafx-graphics</artifactId>
         <version>21</version>
     </dependency>
+    <dependency>
+    <groupId>org.interactivemesh</groupId>
+    <artifactId>jfx3dimporter</artifactId>
+    <version>1.0</version>
+    <scope>system</scope>
+    <systemPath>${project.basedir}/libs/jimObjModelImporterJFX.jar</systemPath>
+</dependency>
+
     </dependencies>
         <build>
         <plugins>
@@ -47,6 +56,11 @@
                 <configuration>
                     <mainClass>io.github.rehanatron.Main</mainClass>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
             </plugin>
         </plugins>
     </build>

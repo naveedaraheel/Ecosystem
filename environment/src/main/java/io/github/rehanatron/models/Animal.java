@@ -1,9 +1,9 @@
 package io.github.rehanatron.models;
 
+import java.io.Serializable;
 import java.util.List;
-import java.util.Random;
 
-public abstract class Animal extends Organism {
+public abstract class Animal extends Organism implements Serializable {
     protected float speed;
     private long lastMoveTime;
     private static final long MOVE_INTERVAL = 1000; // Base interval in milliseconds
@@ -14,8 +14,8 @@ public abstract class Animal extends Organism {
     protected static final int MAX_HERD_DISTANCE = 50; // Maximum distance to maintain from herd members
     protected static final int LOW_ENERGY_THRESHOLD = 30; // Energy level at which to start seeking resources
     protected static final int CRITICAL_ENERGY_THRESHOLD = 15; // Energy level at which to prioritize resource seeking
-    protected static final int HUNGRY_DETECTION_RADIUS = 200; // Increased radius when low on energy
-    protected static final int STARVING_DETECTION_RADIUS = 400; // Further increased radius when critical energy
+    protected static final int HUNGRY_DETECTION_RADIUS = 300; // Increased radius when low on energy
+    protected static final int STARVING_DETECTION_RADIUS = 500; // Further increased radius when critical energy
 
     public Animal(int x, int y, int z, int energy, int speed, String species) {
         super(x, y, z, energy, species);
@@ -76,7 +76,7 @@ public abstract class Animal extends Organism {
 
     protected void maintainHerdDistance(Organism herdMember) {
         double distance = calculateDistance(herdMember);
-        
+
         if (distance < MIN_HERD_DISTANCE) {
             // Too close, move away
             moveAwayFrom(herdMember);
@@ -96,14 +96,14 @@ public abstract class Animal extends Organism {
     protected void moveTowards(Organism target) {
         int dx = target.x - this.x;
         int dy = target.y - this.y;
-        
+
         // Normalize the direction
         double length = Math.sqrt(dx * dx + dy * dy);
         if (length > 0) {
             dx = (int) ((dx / length) * DISTANCE_PER_MOVE);
             dy = (int) ((dy / length) * DISTANCE_PER_MOVE);
         }
-        
+
         this.x += dx;
         this.y += dy;
     }
@@ -111,14 +111,14 @@ public abstract class Animal extends Organism {
     protected void moveAwayFrom(Organism threat) {
         int dx = this.x - threat.x;
         int dy = this.y - threat.y;
-        
+
         // Normalize the direction
         double length = Math.sqrt(dx * dx + dy * dy);
         if (length > 0) {
             dx = (int) ((dx / length) * DISTANCE_PER_MOVE);
             dy = (int) ((dy / length) * DISTANCE_PER_MOVE);
         }
-        
+
         this.x += dx;
         this.y += dy;
     }
@@ -126,11 +126,11 @@ public abstract class Animal extends Organism {
     protected void moveRandomly() {
         // Possible directions: 8 directions + staying still
         int direction = (int) (Math.random() * 16);
-        
+
         // Calculate new position based on direction
         int newX = x;
         int newY = y;
-        
+
         switch (direction) {
             case 0: // North
                 newY -= DISTANCE_PER_MOVE;
@@ -162,7 +162,7 @@ public abstract class Animal extends Organism {
                 break;
             // case 8-15: stay still
         }
-        
+
         // Update position if the move was made
         if (direction < 8) {
             x = newX;
@@ -180,5 +180,11 @@ public abstract class Animal extends Organism {
     }
 
     public abstract void move(List<? extends Organism> organisms);
+
     public abstract void eat(List<? extends Organism> organisms);
+
+    @Override
+    public String toString() {
+        return this.getClass().getName() + "," + x + "," + y + "," + z + "," + energy + "," + speed;
+    }
 }
