@@ -12,7 +12,7 @@ public class Carnivore extends Animal {
     }
 
     @Override
-    public void move(List<? extends Organism> organisms) {
+    public void move(List<? extends Organism> organisms, Terrain terrain) {
         if (canMove()) {
             if (killSite != null) {
                 // Stay at kill site to eat
@@ -29,23 +29,23 @@ public class Carnivore extends Animal {
             if (isCriticalEnergy() || isLowEnergy()) {
                 // First priority: Find food when critically low on energy
                 if (currentTarget != null && currentTarget.isAlive()) {
-                    moveTowards(currentTarget);
+                    moveTowards(currentTarget, terrain);
                 } else {
                     // Find new herbivore target with increased detection radius
                     currentTarget = (Herbivore) findNearestOrganism(organisms, Herbivore.class);
                     if (currentTarget != null) {
-                        moveTowards(currentTarget);
+                        moveTowards(currentTarget, terrain);
                     } else {
-                        moveRandomly();
+                        moveRandomly(terrain);
                     }
                 }
             } else {
                 // Normal behavior: Maintain pack spacing
                 Organism nearestPackMember = findNearestHerdMember(organisms);
                 if (nearestPackMember != null) {
-                    maintainHerdDistance(nearestPackMember);
+                    maintainHerdDistance(nearestPackMember, terrain);
                 } else {
-                    moveRandomly();
+                    moveRandomly(terrain);
                 }
             }
         }

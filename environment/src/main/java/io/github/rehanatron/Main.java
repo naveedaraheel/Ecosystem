@@ -36,6 +36,8 @@ public class Main extends Application {
     private Group UIgroup;
     private PerspectiveCamera camera;
     private String selectedAnimalType = null; // Track selected animal type
+    private static final int CELL_SIZE = 10;
+    private static final int TERRAIN_HEIGHT_MULTIPLIER = 5;
 
     @Override
     public void start(Stage primaryStage) {
@@ -76,14 +78,21 @@ public class Main extends Application {
             if (selectedAnimalType != null && event.getButton() == MouseButton.PRIMARY) {
                 Object targetData = ((Node) event.getTarget()).getUserData();
                 if ("GROUND".equals(targetData)) {
-                    double x = event.getX();
-                    double y = event.getY();
-                    double z = 0;
+                    Box terrainBlock = (Box) event.getTarget();
+                    double x = terrainBlock.getTranslateX() + CELL_SIZE / 2;
+                    double y = terrainBlock.getTranslateY() + CELL_SIZE / 2;
+
+                    // Get the elevation at this position
+                    int gridX = (int) (x / CELL_SIZE);
+                    int gridY = (int) (y / CELL_SIZE);
+                    int elevation = controller.getTerrain().getElevationAt(gridX, gridY);
                     Animal newAnimal;
                     Group animalNode;
+
                     if (selectedAnimalType.equals("Herbivore")) {
-                        z = -10;
-                        newAnimal = new Herbivore((int) x, (int) y, (int) z, 100, 1, "Goat");
+                        elevation -= 10;
+                        newAnimal = new Herbivore((int) x, (int) y, (int) elevation * TERRAIN_HEIGHT_MULTIPLIER, 100, 1,
+                                "Goat");
                         animalNode = loadModel(getClass().getResource("/Goat.obj"), selectedAnimalType);
                         animalNode.setRotationAxis(new Point3D(1, 0, 0));
                         animalNode.setRotate(90);
@@ -91,7 +100,8 @@ public class Main extends Application {
                         animalNode.setScaleY(0.5);
                         animalNode.setScaleZ(0.5);
                     } else {
-                        newAnimal = new Carnivore((int) x, (int) y, 50, 100, 2, "Lion");
+                        newAnimal = new Carnivore((int) x, (int) y, (int) elevation * TERRAIN_HEIGHT_MULTIPLIER, 100, 2,
+                                "Lion");
                         animalNode = loadModel(getClass().getResource("/Lion.obj"), selectedAnimalType);
                         animalNode.setScaleX(0.3);
                         animalNode.setScaleZ(0.3);
@@ -99,7 +109,7 @@ public class Main extends Application {
                     controller.addAnimal(newAnimal);
                     animalNode.setTranslateX(x);
                     animalNode.setTranslateY(y);
-                    animalNode.setTranslateZ(z);
+                    animalNode.setTranslateZ(elevation * TERRAIN_HEIGHT_MULTIPLIER);
 
                     // Add click handler for the animal
                     animalNode.setOnMouseClicked(e -> {
@@ -170,28 +180,40 @@ public class Main extends Application {
 
     private void drawTerrain() {
         Terrain terrain = controller.getTerrain();
-        int cellSize = 10; // Adjust for visualization
         java.util.Random rand = new java.util.Random();
+
+        Map<String, Box> terrainBlocks = new HashMap<>();
         for (int i = 0; i < terrain.getWidth(); i++) {
             for (int j = 0; j < terrain.getlength(); j++) {
-                Rectangle cell = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
+                int elev = -terrain.getElevationAt(i, j);
+                Box cell = new Box(CELL_SIZE, CELL_SIZE, Math.abs(elev) * TERRAIN_HEIGHT_MULTIPLIER);
                 cell.setUserData("GROUND");
-                cell.setFill(Color.rgb(0, 100, 0));
+
+                cell.setTranslateX(i * CELL_SIZE);
+                cell.setTranslateY(j * CELL_SIZE);
+                cell.setTranslateZ(elev);
+
+                // Set cell color
+                PhongMaterial material = new PhongMaterial(new Color(0.6, 0.3, 0, 1));
+                cell.setMaterial(material);
+
+                // Set cell
                 terrainGroup.getChildren().add(cell);
+                terrainBlocks.put(i + "," + j, cell);
                 // Randomly generate a plant with 5% probability
                 if (rand.nextDouble() < 0.05) {
-                    Plant plant = new Plant(i * cellSize + 4, j * cellSize + 4, 0, 100, "Bush");
+                    Plant plant = new Plant(i * CELL_SIZE + 4, j * CELL_SIZE + 4, elev, 100, "Bush");
                     controller.getPlants().add(plant);
                     Node plantNode;
                     if (rand.nextDouble() < 0.25) {
                         plantNode = loadModel(getClass().getResource("/Bush.obj"), "Plant");
-                        plantNode.setTranslateZ(-2);
+                        plantNode.setTranslateZ(elev - 2);
                     } else {
                         plantNode = loadModel(getClass().getResource("/Tree.obj"), "Plant");
-                        plantNode.setTranslateZ(-20);
+                        plantNode.setTranslateZ(elev - 20);
                     }
-                    plantNode.setTranslateX(i * cellSize);
-                    plantNode.setTranslateY(j * cellSize);
+                    plantNode.setTranslateX(i * CELL_SIZE);
+                    plantNode.setTranslateY(j * CELL_SIZE);
                     plantNode.setScaleX(2);
                     plantNode.setScaleY(2);
                     plantNode.setScaleZ(2);
@@ -268,6 +290,10 @@ public class Main extends Application {
             Group node = (Group) entry.getValue();
             node.setTranslateX(animal.x);
             node.setTranslateY(animal.y);
+
+            // Calculate and update Z position based on terrain elevation
+            int elevation = controller.getTerrain().getElevationAt(animal.x, animal.y);
+            node.setTranslateZ(-elevation * TERRAIN_HEIGHT_MULTIPLIER);
 
             // Optionally, update color/material if needed
             if (!animal.isAlive()) {

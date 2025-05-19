@@ -30,7 +30,7 @@ public class SimulationController {
 
         for (Animal animal : animals) {
             if (animal.isAlive()) {
-                animal.move(allOrganisms);
+                animal.move(allOrganisms, terrain);
 
                 if (animal instanceof Herbivore) {
                     ((Herbivore) animal).eat(plants);

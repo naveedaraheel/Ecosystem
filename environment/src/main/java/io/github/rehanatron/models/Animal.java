@@ -74,18 +74,18 @@ public abstract class Animal extends Organism implements Serializable {
         return nearest;
     }
 
-    protected void maintainHerdDistance(Organism herdMember) {
+    protected void maintainHerdDistance(Organism herdMember, Terrain terrain) {
         double distance = calculateDistance(herdMember);
 
         if (distance < MIN_HERD_DISTANCE) {
             // Too close, move away
-            moveAwayFrom(herdMember);
+            moveAwayFrom(herdMember, terrain);
         } else if (distance > MAX_HERD_DISTANCE) {
             // Too far, move closer
-            moveTowards(herdMember);
+            moveTowards(herdMember, terrain);
         } else {
             // At comfortable distance, move randomly but stay in the area
-            moveRandomly();
+            moveRandomly(terrain);
         }
     }
 
@@ -93,7 +93,7 @@ public abstract class Animal extends Organism implements Serializable {
         return Math.sqrt(Math.pow(other.x - this.x, 2) + Math.pow(other.y - this.y, 2));
     }
 
-    protected void moveTowards(Organism target) {
+    protected void moveTowards(Organism target, Terrain terrain) {
         int dx = target.x - this.x;
         int dy = target.y - this.y;
 
@@ -104,11 +104,16 @@ public abstract class Animal extends Organism implements Serializable {
             dy = (int) ((dy / length) * DISTANCE_PER_MOVE);
         }
 
-        this.x += dx;
-        this.y += dy;
+        int newX = this.x + dx;
+        int newY = this.y + dy;
+        if (terrain != null && terrain.isValidPosition(newX, newY)) {
+            this.z = terrain.getElevationAt(newX / 10, newY / 10);
+        }
+        this.x = newX;
+        this.y = newY;
     }
 
-    protected void moveAwayFrom(Organism threat) {
+    protected void moveAwayFrom(Organism threat, Terrain terrain) {
         int dx = this.x - threat.x;
         int dy = this.y - threat.y;
 
@@ -119,58 +124,57 @@ public abstract class Animal extends Organism implements Serializable {
             dy = (int) ((dy / length) * DISTANCE_PER_MOVE);
         }
 
-        this.x += dx;
-        this.y += dy;
+        int newX = this.x + dx;
+        int newY = this.y + dy;
+        if (terrain != null && terrain.isValidPosition(newX, newY)) {
+            this.z = terrain.getElevationAt(newX, newY);
+        }
+        this.x = newX;
+        this.y = newY;
     }
 
-    protected void moveRandomly() {
-        // Possible directions: 8 directions + staying still
-        int direction = (int) (Math.random() * 16);
-
-        // Calculate new position based on direction
+    protected void moveRandomly(Terrain terrain) {
+        int direction = (int) (Math.random() * 12);
         int newX = x;
         int newY = y;
-
         switch (direction) {
-            case 0: // North
+            case 0:
                 newY -= DISTANCE_PER_MOVE;
                 break;
-            case 1: // Northeast
+            case 1:
                 newX += DISTANCE_PER_MOVE;
                 newY -= DISTANCE_PER_MOVE;
                 break;
-            case 2: // East
+            case 2:
                 newX += DISTANCE_PER_MOVE;
                 break;
-            case 3: // Southeast
+            case 3:
                 newX += DISTANCE_PER_MOVE;
                 newY += DISTANCE_PER_MOVE;
                 break;
-            case 4: // South
+            case 4:
                 newY += DISTANCE_PER_MOVE;
                 break;
-            case 5: // Southwest
+            case 5:
                 newX -= DISTANCE_PER_MOVE;
                 newY += DISTANCE_PER_MOVE;
                 break;
-            case 6: // West
+            case 6:
                 newX -= DISTANCE_PER_MOVE;
                 break;
-            case 7: // Northwest
+            case 7:
                 newX -= DISTANCE_PER_MOVE;
                 newY -= DISTANCE_PER_MOVE;
                 break;
-            // case 8-15: stay still
         }
-
-        // Update position if the move was made
-        if (direction < 8) {
-            x = newX;
-            y = newY;
+        if (direction < 8 && terrain != null && terrain.isValidPosition(newX, newY)) {
+            this.x = newX;
+            this.y = newY;
+            this.z = terrain.getElevationAt(newX, newY);
         }
     }
 
-    protected boolean canMove() {
+    public boolean canMove() {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastMoveTime >= MOVE_INTERVAL / speed) {
             lastMoveTime = currentTime;
@@ -179,7 +183,7 @@ public abstract class Animal extends Organism implements Serializable {
         return false;
     }
 
-    public abstract void move(List<? extends Organism> organisms);
+    public abstract void move(List<? extends Organism> organisms, Terrain terrain);
 
     public abstract void eat(List<? extends Organism> organisms);
 
